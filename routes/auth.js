@@ -39,9 +39,9 @@ router.post('/login', async (req, res) => {
     if (!validPassword) return res.status(400).json({ message: 'Incorrect password' });
 
     const token = jwt.sign({ id: user.rows[0].id, email }, JWT_SECRET, { expiresIn: '1h' });
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: true,
+    res.cookie('authToken', token, {
+      httpOnly: false,
+      secure: false,
       sameSite: 'strict',
       maxAge: 60 * 60 * 1000, // 1 hour
     });

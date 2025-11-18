@@ -55,8 +55,8 @@ router.post('/add', async (req, res) => {
 
     res.json({ message: 'English and Swedish translations saved successfully' });
   } catch (error) {
-    console.error('Error saving translations:', error);
-    res.status(500).json({ error: 'Failed to save translations' });
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Failed to save' });
   }
 });
 router.post('/add-with-key', async (req, res) => {
@@ -79,8 +79,8 @@ router.post('/add-with-key', async (req, res) => {
 
     res.json({ message: 'English and Swedish translations saved successfully' });
   } catch (error) {
-    console.error('Error saving translations:', error);
-    res.status(500).json({ error: 'Failed to save translations' });
+    console.error('Error :', error);
+    res.status(500).json({ error: 'Failed to save' });
   }
 });
 
