@@ -1,18 +1,18 @@
 import express from 'express';
-import { client } from '../index.js';
+import { client } from '../config/db.js';
 
 const router = express.Router();
 
-router.get('/all', async (req, res) => {
+router.get('/all', async (req, res, next) => {
   try {
     const result = await client.query('SELECT * FROM products ORDER BY article_no ASC');
     res.json(result.rows);
   } catch (error) {
-    console.error('Error products:', error);
-    res.status(500).json({ error: 'Failed to fetch products' });
+    next(error);
   }
 });
-router.post('/add', async (req, res) => {
+
+router.post('/add', async (req, res, next) => {
   try {
     const { article_no, product_name, in_price, price, unit, in_stock, description } = req.body;
 
@@ -24,11 +24,10 @@ router.post('/add', async (req, res) => {
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {
-    console.error('Error :', error);
-    res.status(500).json({ error: 'Failed to add ' });
+    next(error);
   }
 });
-router.put('/:id', async (req, res) => {
+router.put('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
     const updates = req.body;
@@ -48,8 +47,7 @@ router.put('/:id', async (req, res) => {
     // res.send('Hello');
     res.json(result.rows[0]);
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Failed to update !' });
+    next(error);
   }
 });
 

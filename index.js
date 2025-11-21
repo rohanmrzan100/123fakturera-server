@@ -1,13 +1,13 @@
-import express from 'express';
-import cors from 'cors';
-import { Client } from 'pg';
-import 'dotenv/config';
-import translationRoutes from './routes/translation.js';
-import productRoutes from './routes/products.js';
-import authRoutes from './routes/auth.js';
-import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import 'dotenv/config';
+import express from 'express';
+import morgan from 'morgan';
+import { connectDB } from './config/db.js';
 import { authenticateToken } from './middleware/authenticateToken.js';
+import authRoutes from './routes/auth.js';
+import productRoutes from './routes/products.js';
+import translationRoutes from './routes/translation.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -16,31 +16,39 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.use(
   cors({
-    origin: ['http://localhost:5173',"http://202.51.82.227:4173"],
+    origin: ['http://localhost:5173', 'http://202.51.82.227:4173'],
     credentials: true,
     methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
   }),
 );
 app.use(cookieParser());
-let client;
 (async () => {
-  client = new Client({
-    connectionString: process.env.POSTGRES_URI,
-    ssl: { rejectUnauthorized: false },
-  });
-
-  await client.connect();
-  console.log('Database connected successfully');
-
+  await connectDB();
   app.get('/', (req, res) => {
-    res.send('Hello, World!');
+    res.json({ message: 'Hello, World!, Health Check ' });
   });
   app.use('/api/v1/auth', authRoutes);
   app.use('/api/v1/translations', translationRoutes);
   app.use('/api/v1/products', authenticateToken, productRoutes);
+
+  app.use((req, res, next) => {
+    const error = new Error(`Endpoint Not Found -> ${req.originalUrl}`);
+    error.statusCode = 404;
+    next(error);
+  });
+
+  app.use((error, req, res, next) => {
+    const statusCode = error.statusCode || 500;
+    console.error(error);
+    res.status(statusCode).json({
+      status: 'error',
+      message:
+        process.env.NODE_ENV === 'production'
+          ? 'An unexpected server error occurred.'
+          : error.message || 'An unexpected server error occurred.',
+    });
+  });
   app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
   });
 })();
-
-export { client };

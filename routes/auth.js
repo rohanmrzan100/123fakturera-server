@@ -1,12 +1,12 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { client } from '../index.js';
+import { client } from '../config/db.js';
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 
-router.post('/register', async (req, res) => {
+router.post('/register', async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ message: 'Missing fields' });
 
@@ -21,13 +21,12 @@ router.post('/register', async (req, res) => {
     ]);
 
     res.status(201).json({ message: 'User registered successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Internal Server error' });
+  } catch (error) {
+    next(error);
   }
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ message: 'Missing fields' });
 
@@ -47,9 +46,8 @@ router.post('/login', async (req, res) => {
     });
 
     res.json({ message: 'Login successful' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Internal seerver error' });
+  } catch (error) {
+    next(error);
   }
 });
 

@@ -1,8 +1,8 @@
 import express from 'express';
-import { client } from '../index.js';
+import { client } from '../config/db.js';
 const router = express.Router();
 
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
   res.json({ msg: 'translation routes' });
 });
 
@@ -18,23 +18,11 @@ router.get('/:lang', async (req, res) => {
     });
     res.json(translations);
   } catch (error) {
-    console.error('Error fetching translations:', error);
-    res.status(500).json({ error: 'Failed to fetch translations' });
+    next(error);
   }
 });
-// const data = {
-//   Home: 'Hem',
 
-//   Order: 'Beställ',
-
-//   'Our Customers': 'Våra Kunder',
-
-//   'About us': 'Om oss',
-
-//   'Contact Us': 'Kontakta oss',
-// };
-
-router.post('/add', async (req, res) => {
+router.post('/add', async (req, res, next) => {
   if (!req.body || Object.keys(req.body).length === 0) {
     return res.status(400).json({ error: 'No data received' });
   }
@@ -79,8 +67,7 @@ router.post('/add-with-key', async (req, res) => {
 
     res.json({ message: 'English and Swedish translations saved successfully' });
   } catch (error) {
-    console.error('Error :', error);
-    res.status(500).json({ error: 'Failed to save' });
+    next(error);
   }
 });
 
