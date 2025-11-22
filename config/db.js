@@ -3,9 +3,6 @@ import 'dotenv/config';
 
 const client = new Client({
   connectionString: process.env.POSTGRES_URI,
-  ssl: {
-    rejectUnauthorized: false,
-  },
 });
 
 const connectDB = async () => {
