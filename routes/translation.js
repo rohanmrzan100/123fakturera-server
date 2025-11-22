@@ -6,7 +6,7 @@ router.get('/', async (req, res, next) => {
   res.json({ msg: 'translation routes' });
 });
 
-router.get('/:lang', async (req, res) => {
+router.get('/:lang', async (req, res, next) => {
   try {
     const { lang } = req.params;
     const result = await client.query('SELECT key, value FROM translations WHERE language = $1', [
@@ -43,11 +43,10 @@ router.post('/add', async (req, res, next) => {
 
     res.json({ message: 'English and Swedish translations saved successfully' });
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Failed to save' });
+    next();
   }
 });
-router.post('/add-with-key', async (req, res) => {
+router.post('/add-with-key', async (req, res, next) => {
   if (!req.body || Object.keys(req.body).length === 0) {
     return res.status(400).json({ error: 'No data received' });
   }
